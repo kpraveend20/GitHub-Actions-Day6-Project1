@@ -1,0 +1,52 @@
+name: Day 6 CI Pipeline
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Run CI Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Python syntax check
+        run: |
+          python -m py_compile app.py
+          python -m py_compile test_app.py
+
+      - name: Run tests
+        run: |
+          pytest -v
+
+      - name: Check Dockerfile
+        run: |
+          test -f Dockerfile
+          echo "Dockerfile exists"
+
+      - name: CI completed
+        run: |
+          echo "Day 6 CI checks completed successfully"
